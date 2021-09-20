@@ -7,7 +7,7 @@ import java.util.StringJoiner;
 
 public class Car {
 
-    private static final CarCriterion RED_CAR_CRITERION = car -> car.getColor().equals("Red");
+    private static final Criterion<Car> RED_CAR_CRITERION = car -> car.getColor().equals("Red");
     private static final Comparator<Car> CAR_COMPARATOR = (car1, car2) -> car1.getGasLevel() - car2.getGasLevel();
 
     private final int gasLevel;
@@ -22,9 +22,6 @@ public class Car {
         this.trunkContents = trunkContents;
     }
 
-    public static CarCriterion getGasLevelCriterion(int threshold) {
-        return new GasLevelCarCriterion(threshold);
-    }
 
     public static Car withGasColorPassengers(int gas, String color, String... passengers) {
         List<String> p = List.of(passengers);
@@ -37,25 +34,25 @@ public class Car {
 
     }
 
-    public static List<Car> getCarsByCriterion(Iterable<Car> cars, CarCriterion carCriterion) {
-        List<Car> output = new ArrayList<>();
-        for (Car car : cars) {
-            if (carCriterion.test(car))
-                output.add(car);
+    public static <E> List<E> getCarsByCriterion(Iterable<E> cars, Criterion<E> criterion) {
+        List<E> output = new ArrayList<>();
+        for (E e : cars) {
+            if (criterion.test(e))
+                output.add(e);
         }
         return output;
     }
 
-    public static List<Car> getCarsByGasLevel(Iterable<Car> cars, int gasLevel) {
-        List<Car> output = new ArrayList<>();
-        for (Car car : cars) {
-            if (car.getGasLevel() >= gasLevel)
-                output.add(car);
+    public static <E> List<E> getCarsByGasLevel(Iterable<E> values, Criterion<E> criterion) {
+        List<E> output = new ArrayList<>();
+        for (E e : values) {
+            if (criterion.test(e))
+                output.add(e);
         }
         return output;
     }
 
-    public static CarCriterion getRedCarCriterion() {
+    public static Criterion<Car> getRedCarCriterion() {
         return RED_CAR_CRITERION;
     }
 
@@ -63,8 +60,12 @@ public class Car {
         return CAR_COMPARATOR;
     }
 
-    public static CarCriterion getFourPassengerCriterion() {
+    public static Criterion<Car> getFourPassengerCriterion() {
         return c -> c.getPassengers().size() == 4;
+    }
+
+    public static Criterion<Car> getGasLevelCriterion(final int threshold) {
+        return (Car car) -> car.gasLevel >= threshold;
     }
 
     public List<String> getPassengers() {
@@ -93,23 +94,10 @@ public class Car {
                 .toString();
     }
 
+
     @FunctionalInterface
-    interface CarCriterion {
-        boolean test(Car car);
-    }
-
-
-    private static class GasLevelCarCriterion implements CarCriterion {
-        private final int threshold;
-
-        public GasLevelCarCriterion(int threshold) {
-            this.threshold = threshold;
-        }
-
-        @Override
-        public boolean test(Car car) {
-            return car.gasLevel >= threshold;
-        }
+    interface Criterion<T> {
+        boolean test(T car);
     }
 
 
