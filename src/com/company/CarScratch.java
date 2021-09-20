@@ -24,9 +24,9 @@ public class CarScratch {
         showAll(getCarsByCriterion(cars, Car.getGasLevelCriterion(1)));
     }
 
-    public static void showAll(List<Car> cars) {
-        for (Car c : cars) {
-            System.out.println(c);
+    public static <E>void showAll(List<E> values) {
+        for (E e : values) {
+            System.out.println(e);
         }
         System.out.println("---------------------------------------");
     }
