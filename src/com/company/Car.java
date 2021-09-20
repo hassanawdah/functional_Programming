@@ -100,7 +100,7 @@ public class Car {
 
 
     private static class GasLevelCarCriterion implements CarCriterion {
-        private int threshold;
+        private final int threshold;
 
         public GasLevelCarCriterion(int threshold) {
             this.threshold = threshold;
