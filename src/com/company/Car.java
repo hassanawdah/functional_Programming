@@ -1,14 +1,12 @@
 package com.company;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
+import java.util.function.Predicate;
 
 public class Car {
 
-    private static final Criterion<Car> RED_CAR_CRITERION = car -> car.getColor().equals("Red");
-    private static final Comparator<Car> CAR_COMPARATOR = (car1, car2) -> car1.getGasLevel() - car2.getGasLevel();
+    private static final Predicate<Car> RED_CAR_PREDICATE = car -> car.getColor().equals("Red");
+    private static final Comparator<Car> CAR_COMPARATOR = Comparator.comparingInt(Car::getGasLevel);
 
     private final int gasLevel;
     private final String color;
@@ -34,38 +32,47 @@ public class Car {
 
     }
 
-    public static <E> List<E> getCarsByCriterion(Iterable<E> cars, Criterion<E> criterion) {
+    public static <E> List<E> getCarsByCriterion(Iterable<E> cars, Predicate<E> predicate) {
         List<E> output = new ArrayList<>();
         for (E e : cars) {
-            if (criterion.test(e))
+            if (predicate.test(e))
                 output.add(e);
         }
         return output;
     }
 
-    public static <E> List<E> getCarsByGasLevel(Iterable<E> values, Criterion<E> criterion) {
+    public static <E> List<E> getCarsByGasLevel(Iterable<E> values, Predicate<E> predicate) {
         List<E> output = new ArrayList<>();
         for (E e : values) {
-            if (criterion.test(e))
+            if (predicate.test(e))
                 output.add(e);
         }
         return output;
     }
 
-    public static Criterion<Car> getRedCarCriterion() {
-        return RED_CAR_CRITERION;
+    public static Predicate<Car> getRedCarCriterion() {
+        return RED_CAR_PREDICATE;
     }
 
     public static Comparator<Car> getCarComparator() {
         return CAR_COMPARATOR;
     }
 
-    public static Criterion<Car> getFourPassengerCriterion() {
+    public static Predicate<Car> getFourPassengerCriterion() {
         return c -> c.getPassengers().size() == 4;
     }
 
-    public static Criterion<Car> getGasLevelCriterion(final int threshold) {
+    public static Predicate<Car> getGasLevelCriterion(final int threshold) {
         return (Car car) -> car.gasLevel >= threshold;
+    }
+
+    public static Predicate<Car> getColorCarCriterion(String... colors) {
+        Set<String> colorSet = new HashSet<>(Arrays.asList(colors));
+        return car -> colorSet.contains(car.color);
+    }
+
+    public Car addGas(int g) {
+        return new Car(gasLevel + g, color, passengers, trunkContents);
     }
 
     public List<String> getPassengers() {
@@ -92,12 +99,6 @@ public class Car {
                 .add("passengers=" + passengers)
                 .add("trunkContents=" + (trunkContents == null ? "no trucks" : trunkContents.toString()))
                 .toString();
-    }
-
-
-    @FunctionalInterface
-    interface Criterion<T> {
-        boolean test(T car);
     }
 
 
